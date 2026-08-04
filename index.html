@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buon 22° Compleanno Amore Mio ❤️</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Playfair+Display:ital,wght@0,500;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti CDN per l'effetto finale -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --primary: #ff4757;
+            --primary-soft: #ff6b81;
+            --secondary: #ffeaa7;
+            --bg-gradient: linear-gradient(135deg, #2b1055, #7597de);
+            --card-bg: rgba(255, 255, 255, 0.92);
+            --text-dark: #2d3436;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #1a0826 0%, #3a1c40 50%, #5c2349 100%);
+            color: #fff;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Sfondo con cuori fluttuanti */
+        #hearts-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .floating-heart {
+            position: absolute;
+            color: rgba(255, 107, 129, 0.35);
+            animation: floatUp linear infinite;
+            font-size: 20px;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(105vh) scale(0.8) rotate(0deg);
+                opacity: 0;
+            }
+            20% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-10vh) scale(1.3) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Pagine / Sezioni */
+        section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .card {
+            background: var(--card-bg);
+            color: var(--text-dark);
+            max-width: 720px;
+            width: 100%;
+            padding: 45px 35px;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            text-align: center;
+            position: relative;
+        }
+
+        /* Tag Sezione */
+        .section-tag {
+            display: inline-block;
+            background: linear-gradient(45deg, var(--primary), var(--primary-soft));
+            color: #fff;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 6px 18px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+
+        h1, h2 {
+            font-family: 'Playfair Display', serif;
+            color: #1e1e1e;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            line-height: 1.2;
+        }
+
+        h2 {
+            font-size: 2.2rem;
+        }
+
+        .cursive-title {
+            font-family: 'Dancing Script', cursive;
+            color: var(--primary);
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: #4a4a4a;
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        p strong {
+            color: #d63031;
+        }
+
+        /* Freccia di scorrimento */
+        .scroll-indicator {
+            margin-top: 30px;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            color: #d63031;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            animation: bounce 2s infinite;
+            text-decoration: none;
+        }
+
+        .scroll-indicator span {
+            font-size: 1.5rem;
+            margin-top: 5px;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        /* === ANIMAZIONI SCROLL UP / DOWN === */
+        .reveal {
+            opacity: 0;
+            transform: translateY(50px) scale(0.95);
+            transition: all 0.9s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        /* Sezione Proposta */
+        .proposal-card {
+            background: rgba(255, 255, 255, 0.96);
+            border: 2px solid #ffccd5;
+        }
+
+        .proposal-btn {
+            background: linear-gradient(45deg, #ff4757, #ff6b81);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(255, 71, 87, 0.4);
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            display: inline-block;
+        }
+
+        .proposal-btn:hover {
+            transform: translateY(-4px) scale(1.03);
+            box-shadow: 0 15px 30px rgba(255, 71, 87, 0.6);
+        }
+
+        .proposal-modal {
+            display: none;
+            margin-top: 35px;
+            animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .ring-icon {
+            font-size: 4.5rem;
+            display: inline-block;
+            animation: pulseRing 1.8s infinite;
+            margin-bottom: 15px;
+        }
+
+        .proposal-question {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.8rem;
+            color: #d63031;
+            font-weight: 700;
+            margin-bottom: 25px;
+        }
+
+        .yes-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .yes-btn {
+            background: #2ed573;
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(46, 213, 115, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .yes-btn:hover {
+            transform: scale(1.1);
+            background: #26af5f;
+        }
+
+        .final-message {
+            display: none;
+            margin-top: 25px;
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.5rem;
+            color: #ff4757;
+            animation: fadeIn 1s ease-in;
+        }
+
+        @keyframes pulseRing {
+            0% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.15) rotate(10deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.7); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Responsive design */
+        @media (max-width: 600px) {
+            .card {
+                padding: 30px 20px;
+            }
+            h1 { font-size: 2.2rem; }
+            h2 { font-size: 1.8rem; }
+            .cursive-title { font-size: 2.3rem; }
+            p { font-size: 1rem; }
+            .proposal-question { font-size: 2.1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sfondo dinamico con cuori -->
+    <div id="hearts-container"></div>
+
+    <!-- SEZIONE 1: INIZIO -->
+    <section id="sez-1">
+        <div class="card reveal">
+            <span class="section-tag">Capitolo I</span>
+            <span class="cursive-title">Tanti Auguri!</span>
+            <h1>22 Anni di Te ❤️</h1>
+            
+            <p>
+                Amore mio, oggi festeggiamo un traguardo speciale: <strong>i tuoi 22 anni</strong>. 
+                Volevo regalarti qualcosa di unico, uno spazio tutto nostro dove poter custodire le mie parole per te.
+            </p>
+            <p>
+                Da quando sei entrata nella mia vita, ogni singolo giorno ha preso un colore diverso, più luminoso, più dolce. Vederti crescere, raggiungere i tuoi obiettivi e sorridere è la gioia più grande della mia giornata.
+            </p>
+
+            <a href="#sez-2" class="scroll-indicator">
+                Scorri verso il basso per continuare
+                <span>↓</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- SEZIONE 2: DISCORSO / IL NOSTRO PERCORSO -->
+    <section id="sez-2">
+        <div class="card reveal">
+            <span class="section-tag">Capitolo II</span>
+            <h2>Il Nostro Cammino Insieme ✨</h2>
+            
+            <p>
+                In questi 22 anni hai costruito una persona meravigliosa, forte, sensibile, a volte anche un po' permalosa, ma incredibilmente speciale. 
+                Guardando indietro a tutto quello che abbiamo vissuto, mi rendo conto di quanto siamo cresciuti, di quanti ostacoli abbiamo superato e di quante risate abbiamo condiviso.
+            </p>
+            <p>
+                Non importa dove saremo o cosa dovremo affrontare: al tuo fianco mi sento a casa. Sei la mia complice, la mia migliore amica e il mio punto fermo in ogni momento.
+            </p>
+
+            <a href="#sez-3" class="scroll-indicator">
+                Continua a leggere
+                <span>↓</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- SEZIONE 3: CONCLUSIONE -->
+    <section id="sez-3">
+        <div class="card reveal">
+            <span class="section-tag">Capitolo III</span>
+            <h2>Verso il Nostro Futuro 🌹</h2>
+            
+            <p>
+                Oggi festeggiamo il tuo presente e tutto ciò che sei, ma quando guardo a te non posso fare a meno di pensare al nostro futuro. 
+                Un futuro che immagino pieno di viaggi, di sogni da realizzare mano nella mano e di nuovi traguardi da festeggiare insieme.
+            </p>
+            <p>
+                Sei la persona con cui voglio condividere ogni alba e ogni tramonto, senza mai stancarmi. 
+                E proprio per questo, c'è ancora una cosa importante che devo dirti...
+            </p>
+
+            <a href="#sez-4" class="scroll-indicator">
+                C'è un'ultima sorpresa per te...
+                <span>↓</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- SEZIONE 4: LA PROPOSTA DI MATRIMONIO -->
+    <section id="sez-4">
+        <div class="card proposal-card reveal">
+            <span class="section-tag">Il Momento Speciale 💍</span>
+            <h2>Un'Ultima Domanda...</h2>
+            
+            <p style="text-align: center;">
+                Hai reso questi anni indimenticabili. Ora voglio chiederti di rendere indimenticabile tutta la nostra vita.
+            </p>
+
+            <button class="proposal-btn" onclick="revealProposal()">Premi qui ❤️</button>
+
+            <div class="proposal-modal" id="proposalModal">
+                <div class="ring-icon">💍</div>
+                <div class="proposal-question">Vuoi Sposarmi?</div>
+                
+                <div class="yes-buttons">
+                    <button class="yes-btn" onclick="celebrate('SÌ! 💖')">SÌ!</button>
+                    <button class="yes-btn" onclick="celebrate('MILLE VOLTE SÌ! 🎉')">MILLE VOLTE SÌ!</button>
+                </div>
+
+                <div class="final-message" id="finalMessage">
+                    Ti amo infinitamente! Per sempre insieme ❤️
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // --- 1. Animazione Cuori di Sfondo ---
+        function createHearts() {
+            const container = document.getElementById('hearts-container');
+            const heartIcons = ['❤️', '💖', '🌸', '✨', '💕'];
+            
+            for (let i = 0; i < 25; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'floating-heart';
+                heart.innerText = heartIcons[Math.floor(Math.random() * heartIcons.length)];
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = (Math.random() * 5 + 6) + 's';
+                heart.style.animationDelay = (Math.random() * 5) + 's';
+                container.appendChild(heart);
+            }
+        }
+        createHearts();
+
+        // --- 2. Scroll Animation Observer (Sia Scroll Down che Scroll Up) ---
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.25 // Attiva l'animazione quando il 25% della card è visibile
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                } else {
+                    // Rimuove la classe per consentire la ri-animazione anche facendo Scroll Up!
+                    entry.target.classList.remove('active');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // --- 3. Rivelazione della Proposta ---
+        function revealProposal() {
+            const btn = document.querySelector('.proposal-btn');
+            const modal = document.getElementById('proposalModal');
+            
+            btn.style.display = 'none';
+            modal.style.display = 'block';
+
+            // Esplosione iniziale di coriandoli dolci
+            confetti({
+                particleCount: 80,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+        }
+
+        // --- 4. Celebrazione al click del "SÌ!" ---
+        function celebrate(text) {
+            const buttons = document.querySelector('.yes-buttons');
+            const finalMsg = document.getElementById('finalMessage');
+
+            buttons.style.display = 'none';
+            finalMsg.innerText = text + " Per sempre insieme! ❤️";
+            finalMsg.style.display = 'block';
+
+            // Gran finale con fuochi d'artificio/coriandoli a cascata
+            var duration = 5 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
+
+            function randomInRange(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+
+                if (timeLeft <= 0) {
+                    return clearInterval(interval);
+                }
+
+                var particleCount = 50 * (timeLeft / duration);
+                
+                confetti(Object.assign({}, defaults, { 
+                    particleCount, 
+                    origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } 
+                }));
+                confetti(Object.assign({}, defaults, { 
+                    particleCount, 
+                    origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } 
+                }));
+            }, 250);
+        }
+    </script>
+</body>
+</html>
