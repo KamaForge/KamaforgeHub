@@ -25,7 +25,6 @@
             --font-primary: 'Orbitron', sans-serif;
             --font-secondary: 'Space Grotesk', sans-serif;
             
-            /* Altezza fissa per calcolare perfettamente gli spazi */
             --header-height: 80px; 
         }
 
@@ -34,6 +33,10 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
@@ -94,7 +97,6 @@
         header.scrolled {
             box-shadow: 0 5px 20px rgba(0,0,0,0.8);
             border-bottom: 1px solid rgba(181, 30, 41, 0.3);
-            /* Riduciamo leggermente l'altezza allo scroll ma senza influire sul layout base */
             height: 70px; 
         }
 
@@ -103,9 +105,9 @@
             align-items: center;
             gap: 12px;
             text-decoration: none;
+            z-index: 1001;
         }
 
-        /* LOGO NAVBAR: Aumentata luminosità e saturazione */
         .brand-logo img {
             height: 35px;
             width: auto;
@@ -123,6 +125,7 @@
             font-size: 24px;
             font-weight: 700;
             letter-spacing: 2px;
+            white-space: nowrap;
         }
 
         .brand-text span {
@@ -132,14 +135,16 @@
         nav ul {
             display: flex;
             list-style: none;
-            gap: 30px;
+            gap: 35px;
+            align-items: center;
         }
 
         nav ul li a {
             font-size: 14px;
             font-weight: 600;
             letter-spacing: 1px;
-            transition: color 0.3s;
+            transition: color 0.3s, text-shadow 0.3s;
+            white-space: nowrap; /* Impedisce alle scritte di spezzarsi su due righe */
         }
 
         nav ul li a:hover {
@@ -147,18 +152,45 @@
             text-shadow: 0 0 10px rgba(181, 30, 41, 0.5);
         }
 
+        /* Pulsante Menu Hamburger (Nascosto su Desktop) */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 28px;
+            height: 20px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        .menu-toggle span {
+            display: block;
+            height: 2px;
+            width: 100%;
+            background-color: var(--white);
+            border-radius: 2px;
+            transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        /* Animazione icona Hamburger -> X */
+        .menu-toggle.open span:nth-child(1) {
+            transform: translateY(9px) rotate(45deg);
+            background-color: var(--red);
+        }
+        .menu-toggle.open span:nth-child(2) {
+            opacity: 0;
+        }
+        .menu-toggle.open span:nth-child(3) {
+            transform: translateY(-9px) rotate(-45deg);
+            background-color: var(--red);
+        }
+
         /* ================= HERO SHOWCASE (SOLO IMMAGINE) ================= */
         .hero-showcase {
             position: relative;
-            /* Margine e altezza calcolati matematicamente usando l'altezza della navbar */
             margin-top: var(--header-height); 
             height: calc(100vh - var(--header-height)); 
             width: 100%;
-            /* 
-               IL TRUCCO È QUI: "top center" al posto di "center center". 
-               Questo ancora l'immagine in alto. Il browser taglierà SOLO 
-               la parte bassa se necessario, ma il lato superiore sarà sempre intatto al 100%. 
-            */
             background: url('hero.jpg') top center / cover no-repeat; 
             z-index: 1;
         }
@@ -231,7 +263,6 @@
             width: 100%;
         }
 
-        /* LOGO SCHEDA: Luminosità alzata, saturazione extra e glow molto più chiaro/acceso */
         .hero-logo-img {
             height: 80px;
             margin-bottom: 20px;
@@ -474,7 +505,6 @@
             margin-bottom: 25px;
         }
 
-        /* LOGO FOOTER: Luminosità alzata */
         .footer-logo img {
             height: 50px;
             filter: brightness(1.2) saturate(1.1) drop-shadow(0 0 15px rgba(255, 70, 70, 0.3));
@@ -489,14 +519,76 @@
             font-size: 1rem;
         }
 
-        /* ================= RESPONSIVE E OTTIMIZZAZIONE MOBILE ================= */
+        /* ================= RESPONSIVE E MENU MOBILE ================= */
         @media(max-width: 768px) {
             :root {
-                --header-height: 80px;
+                --header-height: 70px;
             }
+
+            header { 
+                padding: 0 25px; 
+                height: var(--header-height);
+            }
+
+            header.scrolled {
+                height: var(--header-height);
+            }
+
+            .brand-text {
+                font-size: 20px;
+            }
+
+            .brand-logo img {
+                height: 30px;
+            }
+
+            /* Mostra l'icona Hamburger su mobile */
+            .menu-toggle {
+                display: flex;
+            }
+
+            /* Menu a tendina full-width moderno */
+            nav {
+                position: fixed;
+                top: var(--header-height);
+                left: 0;
+                width: 100%;
+                background: rgba(13, 13, 13, 0.96);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border-bottom: 1px solid rgba(181, 30, 41, 0.4);
+                padding: 35px 0;
+                transform: translateY(-150%);
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+                box-shadow: 0 20px 40px rgba(0,0,0,0.9);
+            }
+
+            nav.open {
+                transform: translateY(0);
+                opacity: 1;
+                visibility: visible;
+            }
+
+            nav ul {
+                flex-direction: column;
+                gap: 25px;
+                text-align: center;
+            }
+
+            nav ul li a {
+                font-family: var(--font-primary);
+                font-size: 1.1rem;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                display: block;
+                padding: 8px 20px;
+            }
+
+            .concept { padding: 60px 20px 80px 20px; }
+            .products { padding: 80px 20px; }
             .concept-grid { grid-template-columns: 1fr; }
-            header { padding: 0 20px; justify-content: space-between; }
-            nav ul { gap: 15px; }
             .reveal { transform: translateY(40px); }
 
             .hero-showcase {
@@ -510,9 +602,10 @@
             }
 
             .hero-logo-img { height: 60px; }
-            .intro-card h1 { font-size: 2.5rem; }
-            .intro-card h2 { font-size: 1.2rem; margin-bottom: 15px; }
-            .intro-card p { font-size: 1rem; margin-bottom: 25px;}
+            .intro-card h1 { font-size: 2.3rem; }
+            .intro-card h2 { font-size: 1.15rem; margin-bottom: 15px; }
+            .intro-card p { font-size: 1rem; margin-bottom: 25px; }
+            .section-title { font-size: 2rem; }
         }
     </style>
 </head>
@@ -524,7 +617,15 @@
             <img src="Img/LogoRosso.png" alt="KamaForge Icon">
             <div class="brand-text">Kama<span>Forge</span></div>
         </a>
-        <nav>
+
+        <!-- Icona Hamburger per Mobile -->
+        <div class="menu-toggle" id="mobile-menu" aria-label="Menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+
+        <nav id="nav-menu">
             <ul>
                 <li><a href="#home">Home</a></li>
                 <li><a href="#intro">Il Brand</a></li>
@@ -536,7 +637,6 @@
 
     <!-- 1. HERO SHOWCASE: SOLO L'IMMAGINE -->
     <section class="hero-showcase" id="home">
-        <!-- Indicatore di scroll animato -->
         <div class="scroll-indicator">
             <span>Scroll</span>
             <div class="arrow"></div>
@@ -545,7 +645,6 @@
 
     <!-- 2. SEZIONE INTRO: LA SCHEDA CHE APPARE SCROLLANDO -->
     <section class="intro-section" id="intro">
-        <!-- La scheda è animata e appare appena entra nello schermo -->
         <div class="intro-card reveal">
             <img src="Img/LogoRosso.png" alt="KamaForge Logo" class="hero-logo-img delay-1">
             <h1 class="delay-1">KamaForge</h1>
@@ -643,6 +742,24 @@
                 } else {
                     navbar.classList.remove('scrolled');
                 }
+            });
+
+            // Logica Menu Hamburger Mobile
+            const mobileMenuBtn = document.getElementById('mobile-menu');
+            const navMenu = document.getElementById('nav-menu');
+            const navLinks = document.querySelectorAll('#nav-menu ul li a');
+
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileMenuBtn.classList.toggle('open');
+                navMenu.classList.toggle('open');
+            });
+
+            // Chiudi il menu automaticamente quando si clicca su una voce
+            navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenuBtn.classList.remove('open');
+                    navMenu.classList.remove('open');
+                });
             });
         });
     </script>
