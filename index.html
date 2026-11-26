@@ -14,6 +14,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600&display=swap" rel="stylesheet">
 
+    <!-- SDK Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
         /* ================= PALETTE & VARIABILI ================= */
         :root {
@@ -144,7 +147,7 @@
             font-weight: 600;
             letter-spacing: 1px;
             transition: color 0.3s, text-shadow 0.3s;
-            white-space: nowrap; /* Impedisce alle scritte di spezzarsi su due righe */
+            white-space: nowrap;
         }
 
         nav ul li a:hover {
@@ -152,7 +155,29 @@
             text-shadow: 0 0 10px rgba(181, 30, 41, 0.5);
         }
 
-        /* Pulsante Menu Hamburger (Nascosto su Desktop) */
+        /* Pulsante Login nella Navbar */
+        .nav-auth-btn {
+            padding: 8px 20px;
+            background-color: transparent;
+            border: 1px solid var(--red);
+            color: var(--white);
+            font-family: var(--font-primary);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .nav-auth-btn:hover {
+            background-color: var(--red);
+            box-shadow: 0 0 15px rgba(181, 30, 41, 0.6);
+        }
+
+        /* Menu Hamburger */
         .menu-toggle {
             display: none;
             flex-direction: column;
@@ -172,7 +197,6 @@
             transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
-        /* Animazione icona Hamburger -> X */
         .menu-toggle.open span:nth-child(1) {
             transform: translateY(9px) rotate(45deg);
             background-color: var(--red);
@@ -185,7 +209,156 @@
             background-color: var(--red);
         }
 
-        /* ================= HERO SHOWCASE (SOLO IMMAGINE) ================= */
+        /* ================= MODALE LOGIN / REGISTRAZIONE ================= */
+        .auth-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .auth-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .auth-modal {
+            background: rgba(18, 18, 20, 0.95);
+            border: 1px solid rgba(181, 30, 41, 0.4);
+            border-radius: 20px;
+            padding: 40px 35px;
+            width: 100%;
+            max-width: 420px;
+            position: relative;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.9), 0 0 30px rgba(181, 30, 41, 0.15);
+            transform: translateY(30px) scale(0.95);
+            transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .auth-overlay.active .auth-modal {
+            transform: translateY(0) scale(1);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 18px;
+            right: 22px;
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 26px;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close-modal:hover {
+            color: var(--red);
+        }
+
+        .auth-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--dark-grey);
+            padding-bottom: 12px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            background: none;
+            border: none;
+            color: #777;
+            font-family: var(--font-primary);
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            padding: 8px;
+            transition: all 0.3s;
+        }
+
+        .auth-tab.active {
+            color: var(--white);
+            border-bottom: 2px solid var(--red);
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .input-group label {
+            font-size: 13px;
+            color: #bbb;
+            letter-spacing: 0.5px;
+        }
+
+        .input-group input {
+            background: var(--black);
+            border: 1px solid var(--dark-grey);
+            border-radius: 6px;
+            padding: 12px 15px;
+            color: var(--white);
+            font-family: var(--font-secondary);
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .input-group input:focus {
+            border-color: var(--red);
+            box-shadow: 0 0 10px rgba(181, 30, 41, 0.3);
+        }
+
+        .auth-submit {
+            margin-top: 8px;
+            padding: 14px;
+            background: var(--red);
+            border: 1px solid var(--red);
+            border-radius: 6px;
+            color: var(--white);
+            font-family: var(--font-primary);
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .auth-submit:hover {
+            background: transparent;
+            box-shadow: 0 0 20px rgba(181, 30, 41, 0.5);
+        }
+
+        .auth-message {
+            font-size: 13px;
+            text-align: center;
+            min-height: 20px;
+            margin-top: 5px;
+        }
+
+        .auth-message.error { color: #ff5252; }
+        .auth-message.success { color: #4caf50; }
+
+        /* ================= HERO SHOWCASE ================= */
         .hero-showcase {
             position: relative;
             margin-top: var(--header-height); 
@@ -239,7 +412,7 @@
             60% { transform: translateY(-7px) translateX(-50%); }
         }
 
-        /* ================= INTRO SECTION (LA SCHEDA) ================= */
+        /* ================= INTRO SECTION ================= */
         .intro-section {
             position: relative;
             background-color: var(--black);
@@ -542,12 +715,10 @@
                 height: 30px;
             }
 
-            /* Mostra l'icona Hamburger su mobile */
             .menu-toggle {
                 display: flex;
             }
 
-            /* Menu a tendina full-width moderno */
             nav {
                 position: fixed;
                 top: var(--header-height);
@@ -618,7 +789,6 @@
             <div class="brand-text">Kama<span>Forge</span></div>
         </a>
 
-        <!-- Icona Hamburger per Mobile -->
         <div class="menu-toggle" id="mobile-menu" aria-label="Menu">
             <span></span>
             <span></span>
@@ -631,11 +801,37 @@
                 <li><a href="#intro">Il Brand</a></li>
                 <li><a href="#concept">La Visione</a></li>
                 <li><a href="#products">Collezionabili</a></li>
+                <li><button class="nav-auth-btn" id="open-auth-btn">Accedi</button></li>
             </ul>
         </nav>
     </header>
 
-    <!-- 1. HERO SHOWCASE: SOLO L'IMMAGINE -->
+    <!-- MODALE LOGIN / REGISTRAZIONE -->
+    <div class="auth-overlay" id="auth-overlay">
+        <div class="auth-modal">
+            <button class="close-modal" id="close-auth-btn">&times;</button>
+            
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="tab-login">Accedi</button>
+                <button class="auth-tab" id="tab-register">Registrati</button>
+            </div>
+
+            <form class="auth-form" id="auth-form">
+                <div class="input-group">
+                    <label for="auth-email">Email</label>
+                    <input type="email" id="auth-email" placeholder="nome@esempio.it" required>
+                </div>
+                <div class="input-group">
+                    <label for="auth-password">Password</label>
+                    <input type="password" id="auth-password" placeholder="Minimo 6 caratteri" required minlength="6">
+                </div>
+                <button type="submit" class="auth-submit" id="auth-submit-btn">Entra nella Forgia</button>
+                <div class="auth-message" id="auth-message"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 1. HERO SHOWCASE -->
     <section class="hero-showcase" id="home">
         <div class="scroll-indicator">
             <span>Scroll</span>
@@ -643,7 +839,7 @@
         </div>
     </section>
 
-    <!-- 2. SEZIONE INTRO: LA SCHEDA CHE APPARE SCROLLANDO -->
+    <!-- 2. SEZIONE INTRO -->
     <section class="intro-section" id="intro">
         <div class="intro-card reveal">
             <img src="Img/LogoRosso.png" alt="KamaForge Logo" class="hero-logo-img delay-1">
@@ -716,6 +912,13 @@
     <!-- JAVASCRIPT -->
     <script>
         document.addEventListener("DOMContentLoaded", () => {
+            // ================= 1. CONFIGURAZIONE SUPABASE =================
+            const SUPABASE_URL = 'https://wxmupnlknpifhlhjiicg.supabase.co';
+            const SUPABASE_ANON_KEY = 'sb_publishable_zxK9gp6rmRMnyUaaGfAdsg_K3vWLI0-';
+
+            const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+            // ================= 2. ANIMAZIONI SCROLL & NAVBAR =================
             const observerOptions = {
                 root: null,
                 rootMargin: '0px 0px -10% 0px',
@@ -732,8 +935,7 @@
                 });
             }, observerOptions);
 
-            const revealElements = document.querySelectorAll('.reveal');
-            revealElements.forEach((el) => observer.observe(el));
+            document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
 
             const navbar = document.getElementById('navbar');
             window.addEventListener('scroll', () => {
@@ -744,7 +946,7 @@
                 }
             });
 
-            // Logica Menu Hamburger Mobile
+            // Menu Hamburger Mobile
             const mobileMenuBtn = document.getElementById('mobile-menu');
             const navMenu = document.getElementById('nav-menu');
             const navLinks = document.querySelectorAll('#nav-menu ul li a');
@@ -754,12 +956,123 @@
                 navMenu.classList.toggle('open');
             });
 
-            // Chiudi il menu automaticamente quando si clicca su una voce
             navLinks.forEach(link => {
                 link.addEventListener('click', () => {
                     mobileMenuBtn.classList.remove('open');
                     navMenu.classList.remove('open');
                 });
+            });
+
+            // ================= 3. LOGICA MODALE & AUTENTICAZIONE =================
+            const openAuthBtn = document.getElementById('open-auth-btn');
+            const closeAuthBtn = document.getElementById('close-auth-btn');
+            const authOverlay = document.getElementById('auth-overlay');
+            const tabLogin = document.getElementById('tab-login');
+            const tabRegister = document.getElementById('tab-register');
+            const authForm = document.getElementById('auth-form');
+            const authSubmitBtn = document.getElementById('auth-submit-btn');
+            const authMessage = document.getElementById('auth-message');
+
+            let isLoginMode = true;
+            let currentUser = null;
+
+            // Controlla se l'utente è già loggato al caricamento della pagina
+            async function checkUserSession() {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                updateAuthUI(session?.user || null);
+            }
+
+            function updateAuthUI(user) {
+                currentUser = user;
+                if (user) {
+                    const username = user.email.split('@')[0];
+                    openAuthBtn.textContent = `Esci (${username})`;
+                } else {
+                    openAuthBtn.textContent = 'Accedi';
+                }
+            }
+
+            checkUserSession();
+
+            // Apertura modale o Logout
+            openAuthBtn.addEventListener('click', async () => {
+                mobileMenuBtn.classList.remove('open');
+                navMenu.classList.remove('open');
+
+                if (currentUser) {
+                    await supabaseClient.auth.signOut();
+                    updateAuthUI(null);
+                    return;
+                }
+                authOverlay.classList.add('active');
+                authMessage.textContent = '';
+            });
+
+            // Chiusura modale
+            closeAuthBtn.addEventListener('click', () => authOverlay.classList.remove('active'));
+            authOverlay.addEventListener('click', (e) => {
+                if (e.target === authOverlay) authOverlay.classList.remove('active');
+            });
+
+            // Switch Tab Accedi / Registrati
+            tabLogin.addEventListener('click', () => {
+                isLoginMode = true;
+                tabLogin.classList.add('active');
+                tabRegister.classList.remove('active');
+                authSubmitBtn.textContent = 'Entra nella Forgia';
+                authMessage.textContent = '';
+            });
+
+            tabRegister.addEventListener('click', () => {
+                isLoginMode = false;
+                tabRegister.classList.add('active');
+                tabLogin.classList.remove('active');
+                authSubmitBtn.textContent = 'Crea Account';
+                authMessage.textContent = '';
+            });
+
+            // Invio Form (Login o Registrazione su Supabase)
+            authForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                authMessage.className = 'auth-message';
+
+                const email = document.getElementById('auth-email').value;
+                const password = document.getElementById('auth-password').value;
+                authSubmitBtn.disabled = true;
+                authSubmitBtn.textContent = 'Caricamento...';
+
+                try {
+                    if (isLoginMode) {
+                        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                        if (error) throw error;
+                        
+                        updateAuthUI(data.user);
+                        authMessage.classList.add('success');
+                        authMessage.textContent = 'Accesso effettuato!';
+                        setTimeout(() => authOverlay.classList.remove('active'), 800);
+                    } else {
+                        const { data, error } = await supabaseClient.auth.signUp({ email, password });
+                        if (error) throw error;
+
+                        if (data.session) {
+                            updateAuthUI(data.user);
+                            authMessage.classList.add('success');
+                            authMessage.textContent = 'Account creato e connesso!';
+                            setTimeout(() => authOverlay.classList.remove('active'), 1000);
+                        } else {
+                            authMessage.classList.add('success');
+                            authMessage.textContent = 'Registrazione completata! Controlla la tua email.';
+                        }
+                    }
+                } catch (err) {
+                    authMessage.classList.add('error');
+                    authMessage.textContent = err.message === 'Invalid login credentials' 
+                        ? 'Email o password non validi.' 
+                        : err.message;
+                } finally {
+                    authSubmitBtn.disabled = false;
+                    authSubmitBtn.textContent = isLoginMode ? 'Entra nella Forgia' : 'Crea Account';
+                }
             });
         });
     </script>
