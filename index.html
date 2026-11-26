@@ -504,6 +504,10 @@
             display: block;
         }
 
+        .hero-video-mobile {
+            display: none;
+        }
+
         .hero-showcase::after {
             content: '';
             position: absolute;
@@ -654,7 +658,6 @@
             text-shadow: 0 0 20px rgba(181, 30, 41, 0.4);
         }
 
-        /* Contenitore verticale a cascata con spina dorsale luminosa al centro */
         .concept-flow {
             position: relative;
             max-width: 980px;
@@ -665,7 +668,6 @@
             padding: 10px 0 20px 0;
         }
 
-        /* Linea verticale centrale che si illumina progressivamente allo scroll */
         .concept-spine {
             position: absolute;
             top: 0;
@@ -689,7 +691,6 @@
             transition: height 0.12s linear;
         }
 
-        /* Singolo blocco della cascata */
         .concept-step {
             position: relative;
             display: flex;
@@ -706,7 +707,6 @@
             justify-content: flex-end;
         }
 
-        /* Nodo luminoso sulla linea centrale */
         .step-node {
             position: absolute;
             left: 50%;
@@ -728,7 +728,6 @@
             transform: translate(-50%, -50%) scale(1.15);
         }
 
-        /* Contenuto aperto (senza bordi né box pesanti) che entra dal lato */
         .step-content {
             width: calc(50% - 48px);
             display: flex;
@@ -760,7 +759,6 @@
             transform: translateX(0) translateY(0);
         }
 
-        /* Icona 3D metallica flottante senza cornice/bordi */
         .step-icon {
             position: relative;
             flex-shrink: 0;
@@ -841,7 +839,7 @@
             line-height: 1.55;
         }
 
-        /* ================= SEZIONE TAPPETINO GAMING (SCROLL + ROTAZIONE INTERATTIVA 3D) ================= */
+        /* ================= SEZIONE TAPPETINO GAMING (3D DOPPIA FACCIA CON RETRO NERO ANTISCIVOLO) ================= */
         .mousepad-section {
             padding: 80px 50px 100px 50px;
             position: relative;
@@ -912,7 +910,17 @@
             will-change: transform;
         }
 
-        .mousepad-rotator img {
+        /* Faccia anteriore (design tappetino) */
+        .mousepad-face-front {
+            position: relative;
+            width: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            transform: translateZ(2px);
+            border-radius: 18px;
+        }
+
+        .mousepad-face-front img {
             width: 100%;
             height: auto;
             display: block;
@@ -920,9 +928,64 @@
             border: 1px solid rgba(255, 255, 255, 0.18);
             box-shadow: 0 30px 60px rgba(0, 0, 0, 0.85),
                         0 0 40px rgba(255, 75, 130, 0.22);
-            backface-visibility: visible;
             pointer-events: none;
             -webkit-user-drag: none;
+        }
+
+        /* Faccia posteriore (base nera in gomma antiscivolo) */
+        .mousepad-face-back {
+            position: absolute;
+            inset: 0;
+            border-radius: 18px;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            transform: rotateY(180deg) translateZ(2px);
+            background-color: #0b0c0e;
+            background-image:
+                repeating-linear-gradient(
+                    45deg,
+                    rgba(255, 255, 255, 0.022) 0px,
+                    rgba(255, 255, 255, 0.022) 2px,
+                    transparent 2px,
+                    transparent 8px
+                ),
+                repeating-linear-gradient(
+                    -45deg,
+                    rgba(255, 255, 255, 0.022) 0px,
+                    rgba(255, 255, 255, 0.022) 2px,
+                    transparent 2px,
+                    transparent 8px
+                ),
+                radial-gradient(circle at 50% 50%, #16181d 0%, #090a0c 78%);
+            border: 2px solid #1c1f24;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.9),
+                        inset 0 0 28px rgba(0, 0, 0, 0.9),
+                        inset 0 1px 1px rgba(255, 255, 255, 0.06);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            pointer-events: none;
+        }
+
+        /* Incisione tono su tono sul retro in gomma */
+        .mousepad-back-mark {
+            font-family: var(--font-primary);
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.08);
+            text-shadow: 0 1px 0 rgba(0, 0, 0, 0.9);
+        }
+
+        .mousepad-back-sub {
+            font-family: var(--font-secondary);
+            font-size: 0.68rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: rgba(181, 30, 41, 0.35);
         }
 
         .drag-hint {
@@ -1171,13 +1234,21 @@
                 padding: 6px 20px;
             }
 
+            /* Switch video Desktop -> Mobile gestito direttamente via CSS */
+            .hero-video-desktop {
+                display: none;
+            }
+
+            .hero-video-mobile {
+                display: block;
+            }
+
             .concept { padding: 45px 20px 65px 20px; }
             .mousepad-section { padding: 50px 18px 70px 18px; }
             .products { padding: 70px 20px 100px 20px; }
             .mousepad-specs { grid-template-columns: 1fr; }
             .reveal { transform: translateY(40px); }
 
-            /* Cascata compatta su mobile: linea a sinistra e blocchi allineati a destra della linea */
             .concept-flow {
                 gap: 32px;
                 padding-left: 26px;
@@ -1310,10 +1381,21 @@
         </div>
     </div>
 
-    <!-- 1. HERO SHOWCASE (SOLO VIDEO MP4 HD DESKTOP + MOBILE, PULITO) -->
+    <!-- 1. HERO SHOWCASE (VIDEO NATIVI SEPARATI DESKTOP & MOBILE PER MASSIMA COMPATIBILITÀ iOS/ANDROID) -->
     <section class="hero-showcase" id="home">
         <div class="forge-stage">
-            <video id="hero-video" class="hero-video" autoplay loop muted playsinline preload="auto"></video>
+            <!-- Video Desktop -->
+            <video id="hero-video-desktop" class="hero-video hero-video-desktop" autoplay loop muted playsinline webkit-playsinline preload="auto" poster="hero.jpg">
+                <source src="hero.mp4" type="video/mp4">
+                <source src="Img/hero.mp4" type="video/mp4">
+            </video>
+
+            <!-- Video Mobile -->
+            <video id="hero-video-mobile" class="hero-video hero-video-mobile" autoplay loop muted playsinline webkit-playsinline preload="auto" poster="hero-mobile.jpg">
+                <source src="heromobile.mp4" type="video/mp4">
+                <source src="Img/heromobile.mp4" type="video/mp4">
+                <source src="hero.mp4" type="video/mp4">
+            </video>
         </div>
 
         <div class="scroll-indicator">
@@ -1322,48 +1404,43 @@
         </div>
     </section>
 
-    <!-- Caricamento video con controllo automatico percorso principale e cartella Img/ -->
+    <!-- Assicura l'avvio immediato del video visibile anche su iOS/Android -->
     <script>
-        (function initHeroVideo() {
-            const video = document.getElementById('hero-video');
-            let currentIsMobile = null;
-            let fallbackTried = false;
+        (function ensureHeroPlayback() {
+            const desktopVid = document.getElementById('hero-video-desktop');
+            const mobileVid = document.getElementById('hero-video-mobile');
 
-            function playVideo() {
-                video.muted = true;
-                video.setAttribute('muted', '');
-                const playPromise = video.play();
-                if (playPromise !== undefined) {
-                    playPromise.catch(() => {});
+            function syncVideos() {
+                const isMobile = window.matchMedia('(max-width: 768px)').matches;
+                const activeVid = isMobile ? mobileVid : desktopVid;
+                const inactiveVid = isMobile ? desktopVid : mobileVid;
+
+                if (inactiveVid && !inactiveVid.paused) {
+                    inactiveVid.pause();
+                }
+
+                if (activeVid) {
+                    activeVid.muted = true;
+                    activeVid.setAttribute('muted', '');
+                    activeVid.setAttribute('playsinline', '');
+                    const p = activeVid.play();
+                    if (p !== undefined) {
+                        p.catch(() => {});
+                    }
                 }
             }
 
-            function setVideoSource() {
-                const isMobile = window.innerWidth <= 768;
-                if (isMobile === currentIsMobile) return;
-                currentIsMobile = isMobile;
-                fallbackTried = false;
+            syncVideos();
+            window.addEventListener('resize', syncVideos);
 
-                video.src = isMobile ? 'heromobile.mp4' : 'hero.mp4';
-                video.load();
-                playVideo();
-            }
-
-            video.addEventListener('error', () => {
-                if (!fallbackTried) {
-                    fallbackTried = true;
-                    const isMobile = window.innerWidth <= 768;
-                    video.src = isMobile ? 'Img/heromobile.mp4' : 'Img/hero.mp4';
-                    video.load();
-                    playVideo();
-                } else {
-                    const isMobile = window.innerWidth <= 768;
-                    video.poster = isMobile ? 'hero-mobile.jpg' : 'hero.jpg';
-                }
-            });
-
-            setVideoSource();
-            window.addEventListener('resize', setVideoSource);
+            // Se il risparmio energetico mobile blocca l'autoplay, il primo tocco fa partire il video
+            const unlockOnTouch = () => {
+                syncVideos();
+                document.removeEventListener('touchstart', unlockOnTouch);
+                document.removeEventListener('click', unlockOnTouch);
+            };
+            document.addEventListener('touchstart', unlockOnTouch, { passive: true });
+            document.addEventListener('click', unlockOnTouch, { passive: true });
         })();
     </script>
 
@@ -1378,12 +1455,11 @@
         </div>
     </section>
 
-    <!-- 3. CONCEPT: SCROLL CONTINUO A CASCATA ALTERNATA (PRIMA DEL TAPPETINO) -->
+    <!-- 3. CONCEPT: SCROLL CONTINUO A CASCATA ALTERNATA -->
     <section class="concept" id="concept">
         <h2 class="section-title reveal">Il Nostro <span>Concept</span></h2>
 
         <div class="concept-flow" id="concept-flow">
-            <!-- Spina dorsale luminosa che si riempie scrollando -->
             <div class="concept-spine">
                 <div class="concept-spine-fill" id="concept-spine-fill"></div>
             </div>
@@ -1488,13 +1564,21 @@
         </div>
     </section>
 
-    <!-- 4. SEZIONE TAPPETINO ORIGINALE ISPIRATO A GTA 6 (SCROLL + ROTAZIONE LIBERA COL MOUSE) -->
+    <!-- 4. SEZIONE TAPPETINO ORIGINALE ISPIRATO A GTA 6 (3D DOPPIA FACCIA CON RETRO NERO) -->
     <section class="mousepad-section" id="mousepad">
         <div class="mousepad-container liquid-glass reveal">
             <div class="mousepad-stage" id="mousepad-stage" title="Trascina per ruotare • Doppio clic per ripristinare">
                 <div class="vice-glow"></div>
                 <div class="mousepad-rotator" id="mousepad-rotator">
-                    <img src="tappetino1.png" draggable="false" onerror="this.onerror=null; this.src='Img/tappetino1.png';" alt="Tappetino Gaming KamaForge Design Originale">
+                    <!-- Fronte: Design originale -->
+                    <div class="mousepad-face-front">
+                        <img src="tappetino1.png" draggable="false" onerror="this.onerror=null; this.src='Img/tappetino1.png';" alt="Tappetino Gaming KamaForge Design Originale">
+                    </div>
+                    <!-- Retro: Gomma nera antiscivolo -->
+                    <div class="mousepad-face-back">
+                        <span class="mousepad-back-mark">KamaForge</span>
+                        <span class="mousepad-back-sub">Anti-Slip Rubber Base</span>
+                    </div>
                 </div>
                 <div class="drag-hint">↻ Trascina per ruotare in 3D</div>
             </div>
@@ -1628,10 +1712,8 @@
             }
 
             function animateLoop() {
-                // Aggiorna spina dorsale Concept
                 updateConceptSpine();
 
-                // Aggiorna rotazione 3D tappetino
                 if (mousepadSection && mousepadRotator) {
                     const rect = mousepadSection.getBoundingClientRect();
                     const windowH = window.innerHeight;
