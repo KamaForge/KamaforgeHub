@@ -18,12 +18,21 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-        /* ================= PALETTE & VARIABILI ================= */
+        /* ================= PALETTE & VARIABILI LIQUID GLASS ================= */
         :root {
             --red: #B51E29;
-            --black: #0D0D0D;
-            --dark-grey: #23272B;
+            --red-glow: rgba(181, 30, 41, 0.45);
+            --black: #08080A;
+            --dark-grey: #181B1F;
             --white: #F2F1ED;
+            
+            /* Proprietà Vetro Liquido */
+            --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.015) 100%);
+            --glass-bg-hover: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(181, 30, 41, 0.08) 100%);
+            --glass-border: rgba(255, 255, 255, 0.14);
+            --glass-highlight: inset 0 1px 1px rgba(255, 255, 255, 0.28), inset 0 -1px 1px rgba(0, 0, 0, 0.4);
+            --glass-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85);
+            --glass-blur: blur(28px) saturate(180%);
             
             --font-primary: 'Orbitron', sans-serif;
             --font-secondary: 'Space Grotesk', sans-serif;
@@ -48,6 +57,7 @@
             font-family: var(--font-secondary);
             overflow-x: hidden;
             line-height: 1.6;
+            position: relative;
         }
 
         h1, h2, h3, .brand-text {
@@ -60,14 +70,93 @@
             color: inherit;
         }
 
+        /* ================= SFERE AMBIENTALI PER RIFRAZIONE VETRO ================= */
+        .ambient-canvas {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .ambient-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(110px);
+            opacity: 0.45;
+            animation: floatOrb 18s ease-in-out infinite alternate;
+        }
+
+        .orb-1 {
+            width: 520px;
+            height: 520px;
+            background: radial-gradient(circle, var(--red) 0%, transparent 70%);
+            top: 35%;
+            left: -10%;
+        }
+
+        .orb-2 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(181, 30, 41, 0.7) 0%, transparent 70%);
+            top: 68%;
+            right: -12%;
+            animation-delay: -6s;
+        }
+
+        .orb-3 {
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(90, 100, 120, 0.35) 0%, transparent 70%);
+            bottom: 5%;
+            left: 25%;
+            animation-delay: -12s;
+        }
+
+        @keyframes floatOrb {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(40px, -50px) scale(1.1); }
+            100% { transform: translate(-30px, 30px) scale(0.95); }
+        }
+
+        /* ================= CLASSE UNIVERSALE LIQUID GLASS ================= */
+        .liquid-glass {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow), var(--glass-highlight);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .liquid-glass::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(
+                500px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+                rgba(255, 255, 255, 0.12),
+                transparent 45%
+            );
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .liquid-glass:hover::after {
+            opacity: 1;
+        }
+
         /* ================= ANIMAZIONI SCROLL MODERNE ================= */
         .reveal {
             opacity: 0;
-            transform: translateY(80px) scale(0.95);
-            filter: blur(8px);
-            transition: opacity 1s cubic-bezier(0.22, 1, 0.36, 1),
-                        transform 1s cubic-bezier(0.22, 1, 0.36, 1),
-                        filter 1s cubic-bezier(0.22, 1, 0.36, 1);
+            transform: translateY(70px) scale(0.96);
+            filter: blur(10px);
+            transition: opacity 0.95s cubic-bezier(0.22, 1, 0.36, 1),
+                        transform 0.95s cubic-bezier(0.22, 1, 0.36, 1),
+                        filter 0.95s cubic-bezier(0.22, 1, 0.36, 1);
             will-change: opacity, transform, filter;
         }
 
@@ -81,7 +170,7 @@
         .delay-2 { transition-delay: 200ms; }
         .delay-3 { transition-delay: 300ms; }
 
-        /* ================= HEADER (NAVBAR) ================= */
+        /* ================= HEADER (NAVBAR LIQUID GLASS) ================= */
         header {
             position: fixed;
             top: 0;
@@ -91,15 +180,18 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: var(--black); 
+            background: rgba(10, 10, 12, 0.72);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
             z-index: 1000;
-            border-bottom: 1px solid var(--dark-grey);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.05);
             transition: all 0.4s ease;
         }
 
         header.scrolled {
-            box-shadow: 0 5px 20px rgba(0,0,0,0.8);
-            border-bottom: 1px solid rgba(181, 30, 41, 0.3);
+            background: rgba(10, 10, 12, 0.85);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7), inset 0 -1px 0 rgba(181, 30, 41, 0.35);
             height: 70px; 
         }
 
@@ -121,7 +213,7 @@
 
         .brand-logo:hover img {
             transform: scale(1.1);
-            filter: brightness(1.4) saturate(1.3) drop-shadow(0 0 10px rgba(255, 50, 50, 0.5));
+            filter: brightness(1.4) saturate(1.3) drop-shadow(0 0 12px rgba(255, 60, 60, 0.6));
         }
 
         .brand-text {
@@ -138,7 +230,7 @@
         nav ul {
             display: flex;
             list-style: none;
-            gap: 35px;
+            gap: 30px;
             align-items: center;
         }
 
@@ -152,32 +244,34 @@
 
         nav ul li a:hover {
             color: var(--red);
-            text-shadow: 0 0 10px rgba(181, 30, 41, 0.5);
+            text-shadow: 0 0 12px rgba(181, 30, 41, 0.6);
         }
 
-        /* Pulsante Login nella Navbar */
         .nav-auth-btn {
-            padding: 8px 20px;
-            background-color: transparent;
-            border: 1px solid var(--red);
+            padding: 9px 22px;
+            background: linear-gradient(135deg, rgba(181, 30, 41, 0.28) 0%, rgba(181, 30, 41, 0.08) 100%);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 90, 100, 0.45);
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25), 0 4px 15px rgba(181, 30, 41, 0.25);
             color: var(--white);
             font-family: var(--font-primary);
             font-size: 12px;
             font-weight: 700;
             letter-spacing: 1.5px;
             text-transform: uppercase;
-            border-radius: 4px;
+            border-radius: 999px;
             cursor: pointer;
             transition: all 0.3s ease;
             white-space: nowrap;
         }
 
         .nav-auth-btn:hover {
-            background-color: var(--red);
-            box-shadow: 0 0 15px rgba(181, 30, 41, 0.6);
+            background: linear-gradient(135deg, rgba(181, 30, 41, 0.85) 0%, rgba(140, 20, 30, 0.9) 100%);
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4), 0 0 22px rgba(181, 30, 41, 0.7);
+            transform: translateY(-1px);
         }
 
-        /* Menu Hamburger */
         .menu-toggle {
             display: none;
             flex-direction: column;
@@ -209,13 +303,13 @@
             background-color: var(--red);
         }
 
-        /* ================= MODALE LOGIN / REGISTRAZIONE ================= */
+        /* ================= MODALE LOGIN LIQUID GLASS ================= */
         .auth-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            background: rgba(5, 5, 8, 0.75);
+            backdrop-filter: blur(18px) saturate(150%);
+            -webkit-backdrop-filter: blur(18px) saturate(150%);
             z-index: 2000;
             display: flex;
             justify-content: center;
@@ -232,14 +326,16 @@
         }
 
         .auth-modal {
-            background: rgba(18, 18, 20, 0.95);
-            border: 1px solid rgba(181, 30, 41, 0.4);
-            border-radius: 20px;
-            padding: 40px 35px;
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.1) 0%, rgba(15, 15, 18, 0.75) 100%);
+            backdrop-filter: blur(32px) saturate(200%);
+            -webkit-backdrop-filter: blur(32px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 35px 70px rgba(0, 0, 0, 0.9), inset 0 1px 1px rgba(255, 255, 255, 0.3), 0 0 40px rgba(181, 30, 41, 0.2);
+            border-radius: 28px;
+            padding: 42px 35px;
             width: 100%;
             max-width: 420px;
             position: relative;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.9), 0 0 30px rgba(181, 30, 41, 0.15);
             transform: translateY(30px) scale(0.95);
             transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
         }
@@ -252,44 +348,56 @@
             position: absolute;
             top: 18px;
             right: 22px;
-            background: none;
-            border: none;
-            color: #888;
-            font-size: 26px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 50%;
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #bbb;
+            font-size: 20px;
             cursor: pointer;
-            transition: color 0.3s;
+            transition: all 0.3s;
         }
 
         .close-modal:hover {
-            color: var(--red);
+            color: var(--white);
+            background: rgba(181, 30, 41, 0.5);
+            border-color: var(--red);
         }
 
         .auth-tabs {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             margin-bottom: 25px;
-            border-bottom: 1px solid var(--dark-grey);
-            padding-bottom: 12px;
+            background: rgba(0, 0, 0, 0.35);
+            padding: 5px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .auth-tab {
             flex: 1;
             background: none;
             border: none;
-            color: #777;
+            color: #888;
             font-family: var(--font-primary);
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
             letter-spacing: 1px;
             text-transform: uppercase;
             cursor: pointer;
-            padding: 8px;
+            padding: 10px;
+            border-radius: 999px;
             transition: all 0.3s;
         }
 
         .auth-tab.active {
             color: var(--white);
-            border-bottom: 2px solid var(--red);
+            background: linear-gradient(135deg, rgba(181, 30, 41, 0.85), rgba(130, 18, 28, 0.9));
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.3), 0 4px 12px rgba(181, 30, 41, 0.4);
         }
 
         .auth-form {
@@ -306,33 +414,37 @@
 
         .input-group label {
             font-size: 13px;
-            color: #bbb;
+            color: #ccc;
             letter-spacing: 0.5px;
+            padding-left: 4px;
         }
 
         .input-group input {
-            background: var(--black);
-            border: 1px solid var(--dark-grey);
-            border-radius: 6px;
-            padding: 12px 15px;
+            background: rgba(0, 0, 0, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5);
+            border-radius: 12px;
+            padding: 13px 16px;
             color: var(--white);
             font-family: var(--font-secondary);
             font-size: 15px;
             outline: none;
-            transition: border-color 0.3s, box-shadow 0.3s;
+            transition: all 0.3s;
         }
 
         .input-group input:focus {
-            border-color: var(--red);
-            box-shadow: 0 0 10px rgba(181, 30, 41, 0.3);
+            border-color: rgba(255, 90, 100, 0.6);
+            background: rgba(0, 0, 0, 0.65);
+            box-shadow: 0 0 15px rgba(181, 30, 41, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.1);
         }
 
         .auth-submit {
             margin-top: 8px;
             padding: 14px;
-            background: var(--red);
-            border: 1px solid var(--red);
-            border-radius: 6px;
+            background: linear-gradient(135deg, #C9222E 0%, #8E141D 100%);
+            border: 1px solid rgba(255, 120, 130, 0.4);
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35), 0 10px 25px rgba(181, 30, 41, 0.45);
+            border-radius: 12px;
             color: var(--white);
             font-family: var(--font-primary);
             font-size: 14px;
@@ -344,8 +456,8 @@
         }
 
         .auth-submit:hover {
-            background: transparent;
-            box-shadow: 0 0 20px rgba(181, 30, 41, 0.5);
+            transform: translateY(-2px);
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5), 0 14px 30px rgba(181, 30, 41, 0.7);
         }
 
         .auth-message {
@@ -355,27 +467,53 @@
             margin-top: 5px;
         }
 
-        .auth-message.error { color: #ff5252; }
-        .auth-message.success { color: #4caf50; }
+        .auth-message.error { color: #ff6b6b; }
+        .auth-message.success { color: #51cf66; }
 
-        /* ================= HERO SHOWCASE ================= */
+        /* ================= HERO SHOWCASE (FULL-WIDTH PULITO, SFUMATURA MINIMA) ================= */
         .hero-showcase {
             position: relative;
             margin-top: var(--header-height); 
             height: calc(100vh - var(--header-height)); 
             width: 100%;
-            background: url('hero.jpg') top center / cover no-repeat; 
+            overflow: hidden;
+            background-color: var(--black);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             z-index: 1;
+        }
+
+        .forge-stage {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            -webkit-mask-image: linear-gradient(to right, transparent 0%, black 1.5%, black 98.5%, transparent 100%);
+            mask-image: linear-gradient(to right, transparent 0%, black 1.5%, black 98.5%, transparent 100%);
+        }
+
+        .hero-video {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center center;
+            pointer-events: none;
+            display: block;
         }
 
         .hero-showcase::after {
             content: '';
             position: absolute;
-            bottom: 0; left: 0; width: 100%; height: 25%;
+            bottom: 0; left: 0; width: 100%; height: 12%;
             background: linear-gradient(to bottom, transparent 0%, var(--black) 100%);
             pointer-events: none;
+            z-index: 4;
         }
 
+        /* Pillola Scroll Liquid Glass */
         .scroll-indicator {
             position: absolute;
             bottom: 30px;
@@ -385,22 +523,28 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
-            opacity: 0.8;
-            animation: bounce 2s infinite;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 999px;
+            background: rgba(15, 15, 18, 0.45);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+            animation: bounce 2.2s infinite;
         }
 
         .scroll-indicator span {
             font-family: var(--font-primary);
-            font-size: 0.8rem;
-            letter-spacing: 2px;
+            font-size: 0.72rem;
+            letter-spacing: 2.5px;
             text-transform: uppercase;
             color: var(--white);
         }
 
         .scroll-indicator .arrow {
-            width: 20px;
-            height: 20px;
+            width: 12px;
+            height: 12px;
             border-bottom: 2px solid var(--red);
             border-right: 2px solid var(--red);
             transform: rotate(45deg);
@@ -408,38 +552,38 @@
 
         @keyframes bounce {
             0%, 20%, 50%, 80%, 100% { transform: translateY(0) translateX(-50%); }
-            40% { transform: translateY(-15px) translateX(-50%); }
-            60% { transform: translateY(-7px) translateX(-50%); }
+            40% { transform: translateY(-10px) translateX(-50%); }
+            60% { transform: translateY(-5px) translateX(-50%); }
         }
 
-        /* ================= INTRO SECTION ================= */
+        /* ================= INTRO SECTION (SCHEDA LIQUID GLASS) ================= */
         .intro-section {
             position: relative;
-            background-color: var(--black);
-            padding: 0 20px 80px 20px;
+            padding: 0 20px 60px 20px;
             display: flex;
             justify-content: center;
-            z-index: 2;
+            z-index: 5;
         }
 
         .intro-card {
-            margin-top: -12vh;
-            background: rgba(13, 13, 13, 0.7);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            padding: 60px 40px;
-            border-radius: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 40px 80px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1);
+            margin-top: -10vh;
+            padding: 60px 45px;
+            border-radius: 32px;
             text-align: center;
             max-width: 900px;
             width: 100%;
+            z-index: 2;
+        }
+
+        .intro-card > * {
+            position: relative;
+            z-index: 2;
         }
 
         .hero-logo-img {
             height: 80px;
             margin-bottom: 20px;
-            filter: brightness(1.25) saturate(1.2) drop-shadow(0 0 20px rgba(255, 70, 70, 0.5));
+            filter: brightness(1.25) saturate(1.2) drop-shadow(0 0 22px rgba(255, 70, 70, 0.55));
         }
 
         .intro-card h1 {
@@ -447,7 +591,7 @@
             font-weight: 900;
             letter-spacing: 5px;
             margin-bottom: 5px;
-            text-shadow: 0 0 20px rgba(0,0,0,0.8);
+            text-shadow: 0 4px 25px rgba(0, 0, 0, 0.7);
         }
 
         .intro-card h2 {
@@ -455,44 +599,45 @@
             color: var(--red);
             margin-bottom: 25px;
             letter-spacing: 3px;
+            text-shadow: 0 0 18px rgba(181, 30, 41, 0.45);
         }
 
         .intro-card p {
             font-size: 1.1rem;
-            color: var(--white);
+            color: rgba(242, 241, 237, 0.92);
             margin-bottom: 35px;
             max-width: 700px;
             margin-left: auto;
             margin-right: auto;
-            opacity: 0.9;
         }
 
         .btn {
             display: inline-block;
-            padding: 15px 40px;
-            background-color: var(--red);
+            padding: 16px 42px;
+            background: linear-gradient(135deg, rgba(205, 34, 46, 0.9) 0%, rgba(145, 20, 30, 0.95) 100%);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             color: var(--white);
             font-family: var(--font-primary);
             font-weight: 700;
             letter-spacing: 1.5px;
-            border: 1px solid var(--red);
+            border: 1px solid rgba(255, 130, 140, 0.45);
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4), 0 12px 30px rgba(181, 30, 41, 0.45);
             cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            border-radius: 4px;
+            transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+            border-radius: 999px;
         }
 
         .btn:hover {
-            background-color: transparent;
-            box-shadow: 0 0 20px var(--red), inset 0 0 10px var(--red);
-            transform: translateY(-2px);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.14) 0%, rgba(181, 30, 41, 0.35) 100%);
+            border-color: rgba(255, 255, 255, 0.35);
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5), 0 0 30px rgba(181, 30, 41, 0.75);
+            transform: translateY(-3px) scale(1.02);
         }
 
-        /* ================= CONCEPT SECTION ================= */
+        /* ================= CONCEPT SECTION: SCROLL CONTINUO A CASCATA ALTERNATA ================= */
         .concept {
-            padding: 80px 50px 120px 50px;
-            background-color: var(--black);
+            padding: 60px 50px 80px 50px;
             position: relative;
             z-index: 2;
         }
@@ -500,174 +645,424 @@
         .section-title {
             text-align: center;
             font-size: 2.5rem;
-            margin-bottom: 60px;
+            margin-bottom: 55px;
             color: var(--white);
         }
 
         .section-title span {
             color: var(--red);
+            text-shadow: 0 0 20px rgba(181, 30, 41, 0.4);
         }
 
-        .concept-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 40px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .concept-card {
-            background-color: var(--dark-grey);
-            padding: 50px 30px;
-            text-align: center;
-            border: 1px solid rgba(242, 241, 237, 0.05);
-            border-radius: 12px;
-            transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s;
-        }
-
-        .concept-card:hover {
-            transform: translateY(-15px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(181, 30, 41, 0.15);
-            border-color: rgba(181, 30, 41, 0.4);
-        }
-
-        .concept-icon {
-            font-size: 3.5rem;
-            margin-bottom: 25px;
-            display: inline-block;
-            filter: drop-shadow(0 0 10px rgba(255, 70, 70, 0.4));
-        }
-
-        .concept-card h3 {
-            font-size: 1.3rem;
-            margin-bottom: 15px;
-            color: var(--white);
-        }
-
-        .concept-card p {
-            font-size: 1rem;
-            color: #aaa;
-        }
-
-        /* ================= PRODUCTS (VETRINA) ================= */
-        .products {
-            padding: 120px 50px;
-            background: linear-gradient(to bottom, var(--black), var(--dark-grey));
-        }
-
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 40px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .product-card {
+        /* Contenitore verticale a cascata con spina dorsale luminosa al centro */
+        .concept-flow {
             position: relative;
-            background-color: var(--black);
-            height: 450px;
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 16px;
-            overflow: hidden;
+            max-width: 980px;
+            margin: 0 auto;
             display: flex;
-            align-items: flex-end;
-            padding: 35px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+            flex-direction: column;
+            gap: 38px;
+            padding: 10px 0 20px 0;
         }
 
-        .product-card:nth-child(1) { background: linear-gradient(rgba(0,0,0,0.3), rgba(13,13,13,1)), url('https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?q=80&w=800&auto=format&fit=crop') center/cover; }
-        .product-card:nth-child(2) { background: linear-gradient(rgba(0,0,0,0.3), rgba(13,13,13,1)), url('https://images.unsplash.com/photo-1593640408182-31c70c8268f5?q=80&w=800&auto=format&fit=crop') center/cover; }
-        .product-card:nth-child(3) { background: linear-gradient(rgba(0,0,0,0.3), rgba(13,13,13,1)), url('https://images.unsplash.com/photo-1605901309584-818e25960b8f?q=80&w=800&auto=format&fit=crop') center/cover; }
+        /* Linea verticale centrale che si illumina progressivamente allo scroll */
+        .concept-spine {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 2px;
+            transform: translateX(-50%);
+            background: linear-gradient(to bottom, transparent 0%, rgba(255, 255, 255, 0.1) 12%, rgba(255, 255, 255, 0.1) 88%, transparent 100%);
+            pointer-events: none;
+        }
 
-        .product-info {
-            z-index: 2;
+        .concept-spine-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+            height: 0%;
+            background: linear-gradient(to bottom, rgba(181, 30, 41, 0.15) 0%, #ff4754 65%, #fff0f0 100%);
+            box-shadow: 0 0 14px rgba(255, 65, 80, 0.85);
+            border-radius: 999px;
+            transition: height 0.12s linear;
         }
 
-        .product-card::before {
+        /* Singolo blocco della cascata */
+        .concept-step {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+            min-height: 135px;
+        }
+
+        .concept-step.side-left {
+            justify-content: flex-start;
+        }
+
+        .concept-step.side-right {
+            justify-content: flex-end;
+        }
+
+        /* Nodo luminoso sulla linea centrale */
+        .step-node {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #22252b;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%) scale(0.8);
+            transition: all 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+            z-index: 3;
+        }
+
+        .concept-step.active .step-node {
+            background: var(--red);
+            border-color: #ff9aa2;
+            box-shadow: 0 0 18px rgba(255, 65, 80, 0.9), 0 0 32px rgba(181, 30, 41, 0.6);
+            transform: translate(-50%, -50%) scale(1.15);
+        }
+
+        /* Contenuto aperto (senza bordi né box pesanti) che entra dal lato */
+        .step-content {
+            width: calc(50% - 48px);
+            display: flex;
+            align-items: center;
+            gap: 26px;
+            opacity: 0;
+            filter: blur(10px);
+            transition: opacity 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+                        transform 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+                        filter 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+            will-change: opacity, transform, filter;
+        }
+
+        .concept-step.side-left .step-content {
+            flex-direction: row-reverse;
+            text-align: right;
+            transform: translateX(-55px) translateY(18px);
+        }
+
+        .concept-step.side-right .step-content {
+            flex-direction: row;
+            text-align: left;
+            transform: translateX(55px) translateY(18px);
+        }
+
+        .concept-step.active .step-content {
+            opacity: 1;
+            filter: blur(0);
+            transform: translateX(0) translateY(0);
+        }
+
+        /* Icona 3D metallica flottante senza cornice/bordi */
+        .step-icon {
+            position: relative;
+            flex-shrink: 0;
+            width: 86px;
+            height: 86px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            will-change: transform;
+        }
+
+        .step-icon::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to top, var(--black) 10%, transparent);
-            z-index: 1;
-            opacity: 0.8;
-            transition: opacity 0.4s ease;
+            inset: 6px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(181, 30, 41, 0.42) 0%, transparent 72%);
+            filter: blur(16px);
+            opacity: 0.55;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            pointer-events: none;
         }
 
-        .product-info h3 {
-            font-size: 1.6rem;
-            margin-bottom: 12px;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+        .concept-step.active .step-icon::before {
+            opacity: 0.95;
+            transform: scale(1.15);
         }
 
-        .product-info p {
-            color: #ccc;
-            font-size: 1rem;
-            margin-bottom: 20px;
-            opacity: 0.8;
-            transition: opacity 0.3s;
+        .step-icon svg {
+            position: relative;
+            z-index: 2;
+            width: 68px;
+            height: 68px;
+            filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 14px rgba(220, 45, 55, 0.35));
+            animation: iconFloat 4.2s ease-in-out infinite;
+            transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), filter 0.4s ease;
         }
-        
-        .product-link {
-            color: var(--red);
+
+        .concept-step:nth-child(3) .step-icon svg { animation-delay: -1.4s; }
+        .concept-step:nth-child(4) .step-icon svg { animation-delay: -2.8s; }
+
+        .step-content:hover .step-icon svg {
+            transform: scale(1.12) translateY(-4px);
+            filter: drop-shadow(0 16px 24px rgba(0, 0, 0, 0.92)) drop-shadow(0 0 22px rgba(255, 80, 90, 0.7));
+        }
+
+        @keyframes iconFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-7px) rotate(1.5deg); }
+        }
+
+        .step-text {
+            flex: 1;
+        }
+
+        .step-num {
+            display: inline-block;
             font-family: var(--font-primary);
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: var(--red);
+            margin-bottom: 4px;
+            text-shadow: 0 0 12px rgba(181, 30, 41, 0.55);
+        }
+
+        .step-text h3 {
+            font-size: 1.55rem;
+            letter-spacing: 2.5px;
+            margin-bottom: 6px;
+            color: var(--white);
+            text-shadow: 0 4px 14px rgba(0, 0, 0, 0.8);
+        }
+
+        .step-text p {
             font-size: 1rem;
-            text-transform: uppercase;
-            font-weight: bold;
+            color: rgba(242, 241, 237, 0.78);
+            line-height: 1.55;
+        }
+
+        /* ================= SEZIONE TAPPETINO GAMING (SCROLL + ROTAZIONE INTERATTIVA 3D) ================= */
+        .mousepad-section {
+            padding: 80px 50px 100px 50px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .mousepad-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 55px;
+            align-items: center;
+            padding: 55px 50px;
+            border-radius: 32px;
+        }
+
+        .mousepad-container > * {
+            position: relative;
+            z-index: 2;
+        }
+
+        .mousepad-stage {
+            position: relative;
+            perspective: 1400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 390px;
+            cursor: grab;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: pan-y;
+        }
+
+        .mousepad-stage.dragging {
+            cursor: grabbing;
+        }
+
+        .vice-glow {
+            position: absolute;
+            width: 85%;
+            height: 75%;
+            border-radius: 50%;
+            background: radial-gradient(
+                circle,
+                rgba(255, 75, 145, 0.35) 0%,
+                rgba(255, 125, 55, 0.25) 40%,
+                rgba(181, 30, 41, 0.18) 65%,
+                transparent 80%
+            );
+            filter: blur(55px);
+            pointer-events: none;
+            animation: vicePulse 5s ease-in-out infinite alternate;
+        }
+
+        @keyframes vicePulse {
+            0% { opacity: 0.65; transform: scale(0.95); }
+            100% { opacity: 1; transform: scale(1.08); }
+        }
+
+        .mousepad-rotator {
+            position: relative;
+            width: 100%;
+            max-width: 560px;
+            transform-style: preserve-3d;
+            will-change: transform;
+        }
+
+        .mousepad-rotator img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.85),
+                        0 0 40px rgba(255, 75, 130, 0.22);
+            backface-visibility: visible;
+            pointer-events: none;
+            -webkit-user-drag: none;
+        }
+
+        .drag-hint {
+            margin-top: 22px;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding-bottom: 5px;
-            border-bottom: 2px solid transparent;
-            transition: all 0.3s ease;
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            letter-spacing: 0.8px;
+            color: rgba(242, 241, 237, 0.7);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            pointer-events: none;
+            transition: opacity 0.3s ease;
         }
 
-        .product-link:hover {
-            border-bottom: 2px solid var(--red);
-            gap: 15px; 
+        .mousepad-stage.dragging .drag-hint {
+            opacity: 0.35;
         }
 
-        .product-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            border-color: rgba(181, 30, 41, 0.5);
-            box-shadow: 0 20px 50px rgba(181, 30, 41, 0.2);
+        .mousepad-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            border-radius: 999px;
+            font-family: var(--font-primary);
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #ffb8d0;
+            background: linear-gradient(135deg, rgba(255, 65, 135, 0.22) 0%, rgba(255, 120, 50, 0.18) 100%);
+            border: 1px solid rgba(255, 110, 160, 0.4);
+            margin-bottom: 18px;
         }
 
-        .product-card:hover::before {
-            opacity: 1;
+        .mousepad-details h2 {
+            font-size: 2.2rem;
+            line-height: 1.2;
+            margin-bottom: 14px;
+            color: var(--white);
         }
 
-        .product-card:hover .product-info {
-            transform: translateY(-10px);
-        }
-        
-        .product-card:hover .product-info p {
-            opacity: 1;
-            color: #fff;
+        .mousepad-details h2 span {
+            background: linear-gradient(90deg, #ff5e9c, #ff9955, var(--red));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        /* ================= FOOTER ================= */
+        .mousepad-details p {
+            font-size: 1.05rem;
+            color: rgba(242, 241, 237, 0.84);
+            margin-bottom: 24px;
+        }
+
+        .mousepad-specs {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .mousepad-specs li {
+            font-size: 0.9rem;
+            color: rgba(242, 241, 237, 0.9);
+            padding: 10px 14px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+        }
+
+        .mousepad-specs li strong {
+            color: var(--red);
+            font-family: var(--font-primary);
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        /* ================= COLLEZIONABILI PREMIUM (IN ARRIVO) ================= */
+        .products {
+            padding: 90px 30px 130px 30px;
+            position: relative;
+            z-index: 2;
+            text-align: center;
+        }
+
+        .products .section-title {
+            margin-bottom: 24px;
+        }
+
+        .coming-soon-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 36px;
+            border-radius: 999px;
+            font-family: var(--font-primary);
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--white);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(181, 30, 41, 0.16) 100%);
+            backdrop-filter: blur(22px) saturate(180%);
+            -webkit-backdrop-filter: blur(22px) saturate(180%);
+            border: 1px solid rgba(255, 100, 110, 0.35);
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25), 0 15px 35px rgba(0, 0, 0, 0.7);
+        }
+
+        .coming-soon-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--red);
+            box-shadow: 0 0 12px var(--red);
+            animation: pulseDot 1.8s ease-in-out infinite;
+        }
+
+        @keyframes pulseDot {
+            0%, 100% { opacity: 0.45; transform: scale(0.85); }
+            50% { opacity: 1; transform: scale(1.25); }
+        }
+
+        /* ================= FOOTER LIQUID GLASS ================= */
         footer {
-            background-color: var(--black);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(8, 8, 10, 0.95) 100%);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
             padding: 60px 20px;
             text-align: center;
-            border-top: 1px solid rgba(181, 30, 41, 0.3);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.12);
             position: relative;
-            overflow: hidden;
-        }
-
-        footer::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 50%;
-            transform: translateX(-50%);
-            width: 50%;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--red), transparent);
-            box-shadow: 0 0 20px 2px var(--red);
+            z-index: 2;
         }
 
         .footer-logo {
@@ -675,31 +1070,48 @@
             align-items: center;
             justify-content: center;
             gap: 15px;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         .footer-logo img {
-            height: 50px;
-            filter: brightness(1.2) saturate(1.1) drop-shadow(0 0 15px rgba(255, 70, 70, 0.3));
+            height: 48px;
+            filter: brightness(1.2) saturate(1.1) drop-shadow(0 0 16px rgba(255, 70, 70, 0.4));
         }
 
         .footer-logo .brand-text {
-            font-size: 2.2rem;
+            font-size: 2.1rem;
         }
 
         .footer-text {
-            color: #666;
-            font-size: 1rem;
+            color: #777;
+            font-size: 0.95rem;
         }
 
         /* ================= RESPONSIVE E MENU MOBILE ================= */
+        @media(max-width: 960px) {
+            .mousepad-container {
+                grid-template-columns: 1fr;
+                padding: 36px 24px;
+                gap: 35px;
+                text-align: center;
+            }
+
+            .mousepad-stage {
+                min-height: 260px;
+            }
+
+            .mousepad-specs {
+                text-align: left;
+            }
+        }
+
         @media(max-width: 768px) {
             :root {
                 --header-height: 70px;
             }
 
             header { 
-                padding: 0 25px; 
+                padding: 0 22px; 
                 height: var(--header-height);
             }
 
@@ -721,19 +1133,21 @@
 
             nav {
                 position: fixed;
-                top: var(--header-height);
-                left: 0;
-                width: 100%;
-                background: rgba(13, 13, 13, 0.96);
-                backdrop-filter: blur(20px);
-                -webkit-backdrop-filter: blur(20px);
-                border-bottom: 1px solid rgba(181, 30, 41, 0.4);
-                padding: 35px 0;
-                transform: translateY(-150%);
+                top: calc(var(--header-height) + 10px);
+                left: 16px;
+                right: 16px;
+                width: auto;
+                border-radius: 24px;
+                background: linear-gradient(145deg, rgba(25, 25, 30, 0.88) 0%, rgba(12, 12, 15, 0.92) 100%);
+                backdrop-filter: blur(28px) saturate(180%);
+                -webkit-backdrop-filter: blur(28px) saturate(180%);
+                border: 1px solid rgba(255, 255, 255, 0.16);
+                box-shadow: 0 25px 50px rgba(0, 0, 0, 0.9), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+                padding: 30px 0;
+                transform: translateY(-140%);
                 opacity: 0;
                 visibility: hidden;
                 transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-                box-shadow: 0 20px 40px rgba(0,0,0,0.9);
             }
 
             nav.open {
@@ -744,43 +1158,107 @@
 
             nav ul {
                 flex-direction: column;
-                gap: 25px;
+                gap: 22px;
                 text-align: center;
             }
 
             nav ul li a {
                 font-family: var(--font-primary);
-                font-size: 1.1rem;
+                font-size: 1.05rem;
                 text-transform: uppercase;
                 letter-spacing: 2px;
                 display: block;
-                padding: 8px 20px;
+                padding: 6px 20px;
             }
 
-            .concept { padding: 60px 20px 80px 20px; }
-            .products { padding: 80px 20px; }
-            .concept-grid { grid-template-columns: 1fr; }
+            .concept { padding: 45px 20px 65px 20px; }
+            .mousepad-section { padding: 50px 18px 70px 18px; }
+            .products { padding: 70px 20px 100px 20px; }
+            .mousepad-specs { grid-template-columns: 1fr; }
             .reveal { transform: translateY(40px); }
 
+            /* Cascata compatta su mobile: linea a sinistra e blocchi allineati a destra della linea */
+            .concept-flow {
+                gap: 32px;
+                padding-left: 26px;
+            }
+
+            .concept-spine {
+                left: 8px;
+                transform: none;
+            }
+
+            .step-node {
+                left: 8px;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+
+            .concept-step.side-left,
+            .concept-step.side-right {
+                justify-content: flex-start;
+                min-height: auto;
+            }
+
+            .step-content,
+            .concept-step.side-left .step-content,
+            .concept-step.side-right .step-content {
+                width: 100%;
+                flex-direction: row;
+                text-align: left;
+                gap: 18px;
+                transform: translateX(30px) translateY(15px);
+            }
+
+            .step-icon {
+                width: 68px;
+                height: 68px;
+            }
+
+            .step-icon svg {
+                width: 54px;
+                height: 54px;
+            }
+
+            .step-text h3 {
+                font-size: 1.25rem;
+            }
+
+            .step-text p {
+                font-size: 0.95rem;
+            }
+
             .hero-showcase {
-                background: url('hero-mobile.jpg') top center / cover no-repeat;
                 height: calc(90vh - var(--header-height));
+            }
+
+            .forge-stage {
+                -webkit-mask-image: none;
+                mask-image: none;
             }
 
             .intro-card {
                 margin-top: -10vh; 
-                padding: 40px 20px;
+                padding: 40px 22px;
+                border-radius: 26px;
             }
 
             .hero-logo-img { height: 60px; }
             .intro-card h1 { font-size: 2.3rem; }
             .intro-card h2 { font-size: 1.15rem; margin-bottom: 15px; }
             .intro-card p { font-size: 1rem; margin-bottom: 25px; }
-            .section-title { font-size: 2rem; }
+            .section-title { font-size: 2rem; margin-bottom: 40px; }
+            .mousepad-details h2 { font-size: 1.7rem; }
         }
     </style>
 </head>
 <body>
+
+    <!-- Sfere di luce ambientale per far rifrangere il vetro liquido -->
+    <div class="ambient-canvas">
+        <div class="ambient-orb orb-1"></div>
+        <div class="ambient-orb orb-2"></div>
+        <div class="ambient-orb orb-3"></div>
+    </div>
 
     <!-- HEADER -->
     <header id="navbar">
@@ -800,6 +1278,7 @@
                 <li><a href="#home">Home</a></li>
                 <li><a href="#intro">Il Brand</a></li>
                 <li><a href="#concept">La Visione</a></li>
+                <li><a href="#mousepad">Tappetino</a></li>
                 <li><a href="#products">Collezionabili</a></li>
                 <li><button class="nav-auth-btn" id="open-auth-btn">Accedi</button></li>
             </ul>
@@ -831,72 +1310,229 @@
         </div>
     </div>
 
-    <!-- 1. HERO SHOWCASE -->
+    <!-- 1. HERO SHOWCASE (SOLO VIDEO MP4 HD DESKTOP + MOBILE, PULITO) -->
     <section class="hero-showcase" id="home">
+        <div class="forge-stage">
+            <video id="hero-video" class="hero-video" autoplay loop muted playsinline preload="auto"></video>
+        </div>
+
         <div class="scroll-indicator">
             <span>Scroll</span>
             <div class="arrow"></div>
         </div>
     </section>
 
+    <!-- Caricamento video con controllo automatico percorso principale e cartella Img/ -->
+    <script>
+        (function initHeroVideo() {
+            const video = document.getElementById('hero-video');
+            let currentIsMobile = null;
+            let fallbackTried = false;
+
+            function playVideo() {
+                video.muted = true;
+                video.setAttribute('muted', '');
+                const playPromise = video.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(() => {});
+                }
+            }
+
+            function setVideoSource() {
+                const isMobile = window.innerWidth <= 768;
+                if (isMobile === currentIsMobile) return;
+                currentIsMobile = isMobile;
+                fallbackTried = false;
+
+                video.src = isMobile ? 'heromobile.mp4' : 'hero.mp4';
+                video.load();
+                playVideo();
+            }
+
+            video.addEventListener('error', () => {
+                if (!fallbackTried) {
+                    fallbackTried = true;
+                    const isMobile = window.innerWidth <= 768;
+                    video.src = isMobile ? 'Img/heromobile.mp4' : 'Img/hero.mp4';
+                    video.load();
+                    playVideo();
+                } else {
+                    const isMobile = window.innerWidth <= 768;
+                    video.poster = isMobile ? 'hero-mobile.jpg' : 'hero.jpg';
+                }
+            });
+
+            setVideoSource();
+            window.addEventListener('resize', setVideoSource);
+        })();
+    </script>
+
     <!-- 2. SEZIONE INTRO -->
     <section class="intro-section" id="intro">
-        <div class="intro-card reveal">
+        <div class="intro-card liquid-glass reveal">
             <img src="Img/LogoRosso.png" alt="KamaForge Logo" class="hero-logo-img delay-1">
             <h1 class="delay-1">KamaForge</h1>
             <h2 class="delay-2">Forge Your Vision.</h2>
             <p class="delay-3">KamaForge rappresenta la forza della creazione e la precisione dell'innovazione. Un simbolo che unisce determinazione, artigianalità e visione in un'unica identità.</p>
-            <a href="#products" class="btn delay-3">Scopri l'Arsenale</a>
+            <a href="#mousepad" class="btn delay-3">Scopri il Tappetino</a>
         </div>
     </section>
 
-    <!-- 3. CONCEPT -->
+    <!-- 3. CONCEPT: SCROLL CONTINUO A CASCATA ALTERNATA (PRIMA DEL TAPPETINO) -->
     <section class="concept" id="concept">
         <h2 class="section-title reveal">Il Nostro <span>Concept</span></h2>
-        <div class="concept-grid">
-            <div class="concept-card reveal">
-                <div class="concept-icon">🛡️</div>
-                <h3>Forza</h3>
-                <p>Determinazione e solidità. Come l'incudine che resiste ad ogni colpo per forgiare capolavori.</p>
+
+        <div class="concept-flow" id="concept-flow">
+            <!-- Spina dorsale luminosa che si riempie scrollando -->
+            <div class="concept-spine">
+                <div class="concept-spine-fill" id="concept-spine-fill"></div>
             </div>
-            <div class="concept-card reveal delay-1">
-                <div class="concept-icon">🔥</div>
-                <h3>Fuoco</h3>
-                <p>Passione, energia e trasformazione. La fiamma che alimenta le nostre creazioni.</p>
+
+            <!-- 01. FORZA (Sinistra) -->
+            <div class="concept-step side-left reveal-step">
+                <div class="step-node"></div>
+                <div class="step-content">
+                    <div class="step-icon">
+                        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <defs>
+                                <linearGradient id="shieldMetal" x1="10" y1="6" x2="54" y2="58" gradientUnits="userSpaceOnUse">
+                                    <stop offset="0%" stop-color="#F2F1ED"/>
+                                    <stop offset="45%" stop-color="#8A929E"/>
+                                    <stop offset="100%" stop-color="#2B3038"/>
+                                </linearGradient>
+                                <linearGradient id="shieldCore" x1="32" y1="14" x2="32" y2="50" gradientUnits="userSpaceOnUse">
+                                    <stop offset="0%" stop-color="#FF4B55"/>
+                                    <stop offset="55%" stop-color="#B51E29"/>
+                                    <stop offset="100%" stop-color="#5E0B12"/>
+                                </linearGradient>
+                            </defs>
+                            <path d="M32 4L54 13V30C54 44.5 44.6 54.6 32 60C19.4 54.6 10 44.5 10 30V13L32 4Z" fill="url(#shieldMetal)"/>
+                            <path d="M32 4L54 13V30C54 44.5 44.6 54.6 32 60V4Z" fill="#000000" fill-opacity="0.28"/>
+                            <path d="M32 10L48 16.8V29.8C48 41 41 49 32 53.5C23 49 16 41 16 29.8V16.8L32 10Z" fill="#13161B"/>
+                            <path d="M32 16L42 21V30C42 37.5 37.5 43.2 32 46.5C26.5 43.2 22 37.5 22 30V21L32 16Z" fill="url(#shieldCore)"/>
+                            <path d="M32 16V46.5C26.5 43.2 22 37.5 22 30V21L32 16Z" fill="#FFFFFF" fill-opacity="0.16"/>
+                            <path d="M32 21L36 28L32 40L28 28L32 21Z" fill="#F2F1ED" fill-opacity="0.85"/>
+                        </svg>
+                    </div>
+                    <div class="step-text">
+                        <span class="step-num">01 // FORGIA</span>
+                        <h3>Forza</h3>
+                        <p>Determinazione e solidità. Come l'incudine che resiste ad ogni colpo per forgiare capolavori.</p>
+                    </div>
+                </div>
             </div>
-            <div class="concept-card reveal delay-2">
-                <div class="concept-icon">🗡️</div>
-                <h3>Progresso</h3>
-                <p>Direzione, visione e innovazione. La punta che rompe le barriere del gaming convenzionale.</p>
+
+            <!-- 02. FUOCO (Destra) -->
+            <div class="concept-step side-right reveal-step">
+                <div class="step-node"></div>
+                <div class="step-content">
+                    <div class="step-icon">
+                        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <defs>
+                                <linearGradient id="flameOuter" x1="32" y1="6" x2="32" y2="58" gradientUnits="userSpaceOnUse">
+                                    <stop offset="0%" stop-color="#FF9B54"/>
+                                    <stop offset="45%" stop-color="#E02835"/>
+                                    <stop offset="100%" stop-color="#6B0C14"/>
+                                </linearGradient>
+                                <linearGradient id="flameInner" x1="32" y1="24" x2="32" y2="54" gradientUnits="userSpaceOnUse">
+                                    <stop offset="0%" stop-color="#FFF2CC"/>
+                                    <stop offset="55%" stop-color="#FF6B4A"/>
+                                    <stop offset="100%" stop-color="#B51E29"/>
+                                </linearGradient>
+                            </defs>
+                            <path d="M33 5C33 5 44 17 44 27C44 29.8 43 32.5 41.5 34.5C44.5 31.8 46.5 27.5 47 23C51.5 28.5 53 35.5 51 42.5C48.5 51.5 41 58 32 58C21.5 58 13 50 13 39C13 28.5 21 20.5 26 14C28.5 10.8 31 7.8 33 5Z" fill="url(#flameOuter)"/>
+                            <path d="M33 5C33 5 44 17 44 27C44 29.8 43 32.5 41.5 34.5C44.5 31.8 46.5 27.5 47 23C51.5 28.5 53 35.5 51 42.5C48.5 51.5 41 58 32 58V5Z" fill="#000000" fill-opacity="0.22"/>
+                            <path d="M32 25C32 25 40 33.5 40 41.5C40 47.5 36.4 52 32 52C27.6 52 24 47.5 24 41.5C24 35.5 28.5 30 32 25Z" fill="url(#flameInner)"/>
+                            <path d="M32 35L35 43L32 48L29 43L32 35Z" fill="#F2F1ED" fill-opacity="0.9"/>
+                        </svg>
+                    </div>
+                    <div class="step-text">
+                        <span class="step-num">02 // ENERGIA</span>
+                        <h3>Fuoco</h3>
+                        <p>Passione, energia e trasformazione. La fiamma che alimenta le nostre creazioni.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 03. PROGRESSO (Sinistra) -->
+            <div class="concept-step side-left reveal-step">
+                <div class="step-node"></div>
+                <div class="step-content">
+                    <div class="step-icon">
+                        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <defs>
+                                <linearGradient id="bladeSteel" x1="16" y1="6" x2="48" y2="54" gradientUnits="userSpaceOnUse">
+                                    <stop offset="0%" stop-color="#FFFFFF"/>
+                                    <stop offset="48%" stop-color="#9BA3AF"/>
+                                    <stop offset="100%" stop-color="#323842"/>
+                                </linearGradient>
+                                <linearGradient id="bladeEdge" x1="32" y1="6" x2="32" y2="58" gradientUnits="userSpaceOnUse">
+                                    <stop offset="0%" stop-color="#FF545E"/>
+                                    <stop offset="100%" stop-color="#8C111B"/>
+                                </linearGradient>
+                            </defs>
+                            <path d="M32 5L46 38L32 31L18 38L32 5Z" fill="url(#bladeSteel)"/>
+                            <path d="M32 5L46 38L32 31V5Z" fill="#000000" fill-opacity="0.32"/>
+                            <path d="M32 14L35.5 30.5L32 28.8L28.5 30.5L32 14Z" fill="url(#bladeEdge)"/>
+                            <path d="M16 45L32 37L48 45L44 49L32 43L20 49L16 45Z" fill="url(#bladeEdge)"/>
+                            <path d="M22 54L32 49L42 54L39 58L32 54.5L25 58L22 54Z" fill="#F2F1ED" fill-opacity="0.75"/>
+                        </svg>
+                    </div>
+                    <div class="step-text">
+                        <span class="step-num">03 // VISIONE</span>
+                        <h3>Progresso</h3>
+                        <p>Direzione, visione e innovazione. La punta che rompe le barriere del gaming convenzionale.</p>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- 4. PRODUCTS / VETRINA -->
+    <!-- 4. SEZIONE TAPPETINO ORIGINALE ISPIRATO A GTA 6 (SCROLL + ROTAZIONE LIBERA COL MOUSE) -->
+    <section class="mousepad-section" id="mousepad">
+        <div class="mousepad-container liquid-glass reveal">
+            <div class="mousepad-stage" id="mousepad-stage" title="Trascina per ruotare • Doppio clic per ripristinare">
+                <div class="vice-glow"></div>
+                <div class="mousepad-rotator" id="mousepad-rotator">
+                    <img src="tappetino1.png" draggable="false" onerror="this.onerror=null; this.src='Img/tappetino1.png';" alt="Tappetino Gaming KamaForge Design Originale">
+                </div>
+                <div class="drag-hint">↻ Trascina per ruotare in 3D</div>
+            </div>
+
+            <div class="mousepad-details">
+                <div class="mousepad-badge">✦ Design Originale KamaForge</div>
+                <h2>Tappetino Gaming <span>Vice Edition</span></h2>
+                <p>
+                    Ispirato alle atmosfere elettriche di <strong>GTA 6</strong>: tramonti incandescenti, luci al neon e l'energia ribelle della costa di Vice City si fondono con l'estetica affilata di KamaForge. Un'opera originale pensata per trasformare la tua scrivania in un manifesto di stile e velocità.
+                </p>
+                <ul class="mousepad-specs">
+                    <li>
+                        <strong>Superficie Speed</strong>
+                        Micro-trama ultra fluida per tracciamento preciso.
+                    </li>
+                    <li>
+                        <strong>Stampa HD</strong>
+                        Colori neon saturi e resistenti nel tempo.
+                    </li>
+                    <li>
+                        <strong>Bordi Cuciti</strong>
+                        Finitura anti-sfilacciamento a basso profilo.
+                    </li>
+                    <li>
+                        <strong>Base Antiscivolo</strong>
+                        Gomma ad alta aderenza per sessioni intense.
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. COLLEZIONABILI PREMIUM (IN ARRIVO) -->
     <section class="products" id="products">
         <h2 class="section-title reveal">Collezionabili <span>Premium</span></h2>
-        <div class="product-grid">
-            <div class="product-card reveal">
-                <div class="product-info">
-                    <h3>Statuette Edizione Limitata</h3>
-                    <p>Dettagli forgiati con precisione millimetrica per i veri collezionisti.</p>
-                    <a href="#" class="product-link">Esplora &rarr;</a>
-                </div>
-            </div>
-            <div class="product-card reveal delay-1">
-                <div class="product-info">
-                    <h3>Accessori Setup</h3>
-                    <p>Eleva la tua postazione gaming con materiali premium e design avanguardistico.</p>
-                    <a href="#" class="product-link">Esplora &rarr;</a>
-                </div>
-            </div>
-            <div class="product-card reveal delay-2">
-                <div class="product-info">
-                    <h3>Apparel & Merch</h3>
-                    <p>Indossa la tua visione. Abbigliamento di alta qualità per distinguersi in ogni contesto.</p>
-                    <a href="#" class="product-link">Esplora &rarr;</a>
-                </div>
-            </div>
+        <div class="coming-soon-pill reveal delay-1">
+            <span class="coming-soon-dot"></span>
+            In arrivo
         </div>
     </section>
 
@@ -918,11 +1554,133 @@
 
             const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-            // ================= 2. ANIMAZIONI SCROLL & NAVBAR =================
+            // ================= 2. ROTAZIONE 3D TAPPETINO (SCROLL + DRAG MOUSE/TOUCH) =================
+            const mousepadSection = document.getElementById('mousepad');
+            const mousepadStage = document.getElementById('mousepad-stage');
+            const mousepadRotator = document.getElementById('mousepad-rotator');
+
+            let currentRotY = 0;
+            let currentRotX = 0;
+            let userRotY = 0;
+            let userRotX = 0;
+            let velY = 0;
+            let velX = 0;
+            let isDragging = false;
+            let lastPointerX = 0;
+            let lastPointerY = 0;
+
+            if (mousepadStage) {
+                mousepadStage.addEventListener('pointerdown', (e) => {
+                    isDragging = true;
+                    lastPointerX = e.clientX;
+                    lastPointerY = e.clientY;
+                    velY = 0;
+                    velX = 0;
+                    mousepadStage.classList.add('dragging');
+                    mousepadStage.setPointerCapture(e.pointerId);
+                });
+
+                mousepadStage.addEventListener('pointermove', (e) => {
+                    if (!isDragging) return;
+                    const dx = e.clientX - lastPointerX;
+                    const dy = e.clientY - lastPointerY;
+                    lastPointerX = e.clientX;
+                    lastPointerY = e.clientY;
+
+                    velY = dx * 0.55;
+                    velX = -dy * 0.4;
+
+                    userRotY += velY;
+                    userRotX = Math.max(-55, Math.min(55, userRotX + velX));
+                });
+
+                const stopDrag = (e) => {
+                    if (!isDragging) return;
+                    isDragging = false;
+                    mousepadStage.classList.remove('dragging');
+                    if (e.pointerId !== undefined && mousepadStage.hasPointerCapture(e.pointerId)) {
+                        mousepadStage.releasePointerCapture(e.pointerId);
+                    }
+                };
+
+                mousepadStage.addEventListener('pointerup', stopDrag);
+                mousepadStage.addEventListener('pointercancel', stopDrag);
+
+                mousepadStage.addEventListener('dblclick', () => {
+                    userRotY = 0;
+                    userRotX = 0;
+                    velY = 0;
+                    velX = 0;
+                });
+            }
+
+            // ================= 3. PROGRESSO CONTINUO SPINA DORSALE CONCEPT =================
+            const conceptFlow = document.getElementById('concept-flow');
+            const conceptSpineFill = document.getElementById('concept-spine-fill');
+
+            function updateConceptSpine() {
+                if (!conceptFlow || !conceptSpineFill) return;
+                const rect = conceptFlow.getBoundingClientRect();
+                const triggerPoint = window.innerHeight * 0.68;
+                const progress = (triggerPoint - rect.top) / rect.height;
+                const clamped = Math.max(0, Math.min(1, progress));
+                conceptSpineFill.style.height = `${(clamped * 100).toFixed(1)}%`;
+            }
+
+            function animateLoop() {
+                // Aggiorna spina dorsale Concept
+                updateConceptSpine();
+
+                // Aggiorna rotazione 3D tappetino
+                if (mousepadSection && mousepadRotator) {
+                    const rect = mousepadSection.getBoundingClientRect();
+                    const windowH = window.innerHeight;
+
+                    const progress = (windowH - rect.top) / (windowH + rect.height);
+                    const clamped = Math.max(0, Math.min(1, progress));
+
+                    const scrollRotY = (clamped - 0.5) * 360;
+                    const scrollRotX = Math.sin(clamped * Math.PI) * 10 - 5;
+
+                    if (!isDragging) {
+                        userRotY += velY;
+                        userRotX = Math.max(-55, Math.min(55, userRotX + velX));
+                        velY *= 0.92;
+                        velX *= 0.92;
+                        if (Math.abs(velY) < 0.01) velY = 0;
+                        if (Math.abs(velX) < 0.01) velX = 0;
+                    }
+
+                    const targetRotY = scrollRotY + userRotY;
+                    const targetRotX = Math.max(-65, Math.min(65, scrollRotX + userRotX));
+
+                    const smoothing = isDragging ? 0.35 : 0.12;
+                    currentRotY += (targetRotY - currentRotY) * smoothing;
+                    currentRotX += (targetRotX - currentRotX) * smoothing;
+
+                    mousepadRotator.style.transform = `rotateY(${currentRotY.toFixed(2)}deg) rotateX(${currentRotX.toFixed(2)}deg)`;
+                }
+                requestAnimationFrame(animateLoop);
+            }
+
+            animateLoop();
+
+            // ================= 4. RIFLESSO DINAMICO LIQUID GLASS =================
+            document.querySelectorAll('.liquid-glass').forEach((card) => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    card.style.setProperty('--mouse-x', `${x}px`);
+                    card.style.setProperty('--mouse-y', `${y}px`);
+                });
+            });
+
+            // ================= 5. ANIMAZIONI SCROLL & NAVBAR =================
             const observerOptions = {
                 root: null,
-                rootMargin: '0px 0px -10% 0px',
-                threshold: 0.1
+                rootMargin: '0px 0px -12% 0px',
+                threshold: 0.12
             };
 
             const observer = new IntersectionObserver((entries) => {
@@ -935,7 +1693,7 @@
                 });
             }, observerOptions);
 
-            document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+            document.querySelectorAll('.reveal, .reveal-step').forEach((el) => observer.observe(el));
 
             const navbar = document.getElementById('navbar');
             window.addEventListener('scroll', () => {
@@ -946,7 +1704,6 @@
                 }
             });
 
-            // Menu Hamburger Mobile
             const mobileMenuBtn = document.getElementById('mobile-menu');
             const navMenu = document.getElementById('nav-menu');
             const navLinks = document.querySelectorAll('#nav-menu ul li a');
@@ -963,7 +1720,7 @@
                 });
             });
 
-            // ================= 3. LOGICA MODALE & AUTENTICAZIONE =================
+            // ================= 6. LOGICA MODALE & AUTENTICAZIONE =================
             const openAuthBtn = document.getElementById('open-auth-btn');
             const closeAuthBtn = document.getElementById('close-auth-btn');
             const authOverlay = document.getElementById('auth-overlay');
@@ -976,7 +1733,6 @@
             let isLoginMode = true;
             let currentUser = null;
 
-            // Controlla se l'utente è già loggato al caricamento della pagina
             async function checkUserSession() {
                 const { data: { session } } = await supabaseClient.auth.getSession();
                 updateAuthUI(session?.user || null);
@@ -994,7 +1750,6 @@
 
             checkUserSession();
 
-            // Apertura modale o Logout
             openAuthBtn.addEventListener('click', async () => {
                 mobileMenuBtn.classList.remove('open');
                 navMenu.classList.remove('open');
@@ -1008,13 +1763,11 @@
                 authMessage.textContent = '';
             });
 
-            // Chiusura modale
             closeAuthBtn.addEventListener('click', () => authOverlay.classList.remove('active'));
             authOverlay.addEventListener('click', (e) => {
                 if (e.target === authOverlay) authOverlay.classList.remove('active');
             });
 
-            // Switch Tab Accedi / Registrati
             tabLogin.addEventListener('click', () => {
                 isLoginMode = true;
                 tabLogin.classList.add('active');
@@ -1031,7 +1784,6 @@
                 authMessage.textContent = '';
             });
 
-            // Invio Form (Login o Registrazione su Supabase)
             authForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 authMessage.className = 'auth-message';
